@@ -12,10 +12,12 @@ public class NoteManager : MonoBehaviour
 
     TimeManager timeManager;
     EffectManager effectManager;
+    ComboManager comboManager;
     private void Start()
     {
         timeManager = GetComponent<TimeManager>();
         effectManager = FindObjectOfType<EffectManager>();
+        comboManager = FindObjectOfType<ComboManager>();
     }
     private void Update()
     {
@@ -38,9 +40,10 @@ public class NoteManager : MonoBehaviour
     {
         if (collision.CompareTag("Note"))
         {
-            if (collision.GetComponent<Note>().GetNoteFlag())
+            if (collision.GetComponent<Note>().GetNoteFlag()) // 이미지가 활성화 된 노트라면
             {
-                effectManager.AnimJudgementHit(4);
+                comboManager.ResetCombo(); // 콤보 초기화
+                effectManager.AnimJudgementHit(4); // 미스
             }
             timeManager.noteList.Remove(collision.gameObject);
 

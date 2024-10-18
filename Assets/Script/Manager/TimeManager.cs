@@ -10,10 +10,12 @@ public class TimeManager : MonoBehaviour
     public RectTransform[] timingRect = null;
     Vector2[] timingBoxs = null;
 
+    ComboManager comboManager;
     EffectManager effectManager;
     ScoreManager scoreManager;
     private void Start()
     {
+        comboManager = FindObjectOfType<ComboManager>();
         effectManager = FindObjectOfType<EffectManager>();
         scoreManager = FindObjectOfType<ScoreManager>();
         // 판정 설정
@@ -27,7 +29,7 @@ public class TimeManager : MonoBehaviour
                               Center.localPosition.x + timingRect[i].rect.width / 2);
         }
     }
-    public void CheckTiming()
+    public bool CheckTiming()
     {
         for (int i = 0; i < noteList.Count; i++)
         {
@@ -42,7 +44,7 @@ public class TimeManager : MonoBehaviour
                     noteList[i].GetComponent<Note>().HideNote();
                     noteList.RemoveAt(i);
 
-                    // 애니메이션 동작
+                    // 애니메이션 동작(0 ~ 3까지)
                     if (j < timingBoxs.Length - 1)
                     {
                         effectManager.AnimNoteHit();
@@ -51,12 +53,12 @@ public class TimeManager : MonoBehaviour
                         scoreManager.IncreaseScore(j);
                     }
                     effectManager.AnimJudgementHit(j);
-
-                    
-                    return;
+                    return true;
                 }
             }
         }
-        effectManager.AnimJudgementHit(timingBoxs.Length);
+        comboManager.ResetCombo(); // 콤보 초기화
+        effectManager.AnimJudgementHit(timingBoxs.Length); // Miss 애니메이션
+        return false;
     }
 }
