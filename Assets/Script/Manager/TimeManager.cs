@@ -13,11 +13,15 @@ public class TimeManager : MonoBehaviour
     ComboManager comboManager;
     EffectManager effectManager;
     ScoreManager scoreManager;
+    StageManager stageManager;
+    PlayerController playerController;
     private void Start()
     {
         comboManager = FindObjectOfType<ComboManager>();
         effectManager = FindObjectOfType<EffectManager>();
         scoreManager = FindObjectOfType<ScoreManager>();
+        stageManager = FindObjectOfType<StageManager>();
+        playerController = FindObjectOfType<PlayerController>();
         // 판정 설정
         timingBoxs = new Vector2[timingRect.Length];
 
@@ -48,17 +52,42 @@ public class TimeManager : MonoBehaviour
                     if (j < timingBoxs.Length - 1)
                     {
                         effectManager.AnimNoteHit();
-
-                        // 점수 증가(Miss제외)
-                        scoreManager.IncreaseScore(j);
                     }
-                    effectManager.AnimJudgementHit(j);
+                    if (CheckCanNextPlate()) // true
+                    {
+                        scoreManager.IncreaseScore(j); // 점수 증가
+                        stageManager.ShowNextPlate(); // 판정 시 다음 발판 활성화
+                        effectManager.AnimJudgementHit(j);
+                    }
+                    else
+                    {
+                        effectManager.AnimJudgementHit(5);
+                    }
                     return true;
                 }
             }
         }
         comboManager.ResetCombo(); // 콤보 초기화
         effectManager.AnimJudgementHit(timingBoxs.Length); // Miss 애니메이션
+        return false;
+    }
+    bool CheckCanNextPlate()
+    {
+        if (Physics.Raycast(playerController.destPos, Vector3.down, out RaycastHit hit, 1.1f))
+        {
+            // 붙이친 위치에 태그 식별
+            if (hit.transform.CompareTag("BasicPlate"))
+            {
+                // 충돌한 오브젝트의 위치 반환
+                BasicPlate plate = hit.transform.GetComponent<BasicPlate>();
+
+                if (plate.flag)
+                {
+                    plate.flag = false; // 밟은 발판 false
+                    return true;
+                }
+            }
+        }
         return false;
     }
 }

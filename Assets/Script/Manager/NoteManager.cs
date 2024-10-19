@@ -7,6 +7,8 @@ public class NoteManager : MonoBehaviour
     public int bpm = 0;
     double currentTime = 0d;
 
+    bool noteActive = true;
+
     public Transform noteSpawn;
     //public GameObject prefab;
 
@@ -21,19 +23,22 @@ public class NoteManager : MonoBehaviour
     }
     private void Update()
     {
-        currentTime += Time.deltaTime;
-
-        if (currentTime >= 60d / bpm)
+        if (noteActive)
         {
-            GameObject note = ObjectPool.instance.noteQueue.Dequeue(); // 큐 반환
-            // 반환 받은 큐 초기 값
-            note.transform.position = noteSpawn.position;
-            note.SetActive(true);
-            //GameObject note = Instantiate(prefab, noteSpawn.position, Quaternion.identity);
-            //note.transform.SetParent(this.transform);
-            note.transform.localScale = Vector3.one;
-            timeManager.noteList.Add(note);
-            currentTime -= 60d / bpm;   
+            currentTime += Time.deltaTime;
+
+            if (currentTime >= 60d / bpm)
+            {
+                GameObject note = ObjectPool.instance.noteQueue.Dequeue(); // 큐 반환
+                                                                           // 반환 받은 큐 초기 값
+                note.transform.position = noteSpawn.position;
+                note.SetActive(true);
+                //GameObject note = Instantiate(prefab, noteSpawn.position, Quaternion.identity);
+                //note.transform.SetParent(this.transform);
+                note.transform.localScale = Vector3.one;
+                timeManager.noteList.Add(note);
+                currentTime -= 60d / bpm;
+            }
         }
     }
     private void OnTriggerEnter2D(Collider2D collision)
@@ -51,6 +56,15 @@ public class NoteManager : MonoBehaviour
             collision.gameObject.SetActive(false);
 
             //Destroy(collision.gameObject);
+        }
+    }
+    public void RemoveNote()
+    {
+        noteActive = false; 
+        for (int i = 0; i < timeManager.noteList.Count; i++)
+        {
+            timeManager.noteList[i].gameObject.SetActive(false);
+            ObjectPool.instance.noteQueue.Enqueue(timeManager.noteList[i]);
         }
     }
 }

@@ -6,10 +6,13 @@ using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("# 골 확인 #")]
+    public static bool canPressKey = true;
+
     [Header("# 큐브 이동 #")]
     public float moveSpeed = 3;
     Vector3 dir = new Vector3(); // 방향
-    Vector3 destPos = new Vector3(); // 위치
+    public Vector3 destPos = new Vector3(); // 위치
 
     [Header("# 큐브 회전 #")]
     public float spinSpeed = 270;
@@ -27,16 +30,21 @@ public class PlayerController : MonoBehaviour
     public Transform realCube;
 
     TimeManager timeManager;
+    CameraController cameraController;
     private void Start()
     {
         timeManager = FindObjectOfType<TimeManager>();
+        cameraController = FindObjectOfType<CameraController>();
     }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.W))
         {
-            if (canMove)
+            //                            상하 키 + 좌우 키 동시 입력 방지
+            if (canMove && !(Input.GetAxisRaw("Vertical") != 0 && Input.GetAxisRaw("Horizontal") != 0) 
+                                                               && canPressKey)
             {
+                Calc();
                 if (timeManager.CheckTiming())
                 {
                     StartAction();
@@ -44,7 +52,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    void StartAction()
+    void Calc()
     {
         // 방향 계산
         dir.Set(Input.GetAxisRaw("Vertical"), 0, Input.GetAxisRaw("Horizontal"));
@@ -57,10 +65,13 @@ public class PlayerController : MonoBehaviour
         // RotateAround : 공전 대상, 회전 축, 회전 값을 이용한 회전 구현
         fakeCube.RotateAround(transform.position, rotDir, spinSpeed);
         destRot = fakeCube.rotation;
-
+    }
+    void StartAction()
+    {
         StartCoroutine(MoveCo());
         StartCoroutine(SpinCo());
         StartCoroutine(RecoilCo());
+        StartCoroutine(cameraController.ZoomCam());
     }
     IEnumerator MoveCo()
     {
