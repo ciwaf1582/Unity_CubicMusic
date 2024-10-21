@@ -25,6 +25,11 @@ public class ScoreManager : MonoBehaviour
         currentScore = 0;
         txtScore.text = "0";
     }
+    public void Initialized() // ÄÞº¸ ÃÊ±âÈ­
+    {
+        currentScore = 0;
+        txtScore.text = "0";
+    }
     public void IncreaseScore(int JudementState)
     {
         // ÄÞº¸ Áõ°¡
@@ -43,5 +48,9 @@ public class ScoreManager : MonoBehaviour
         txtScore.text = string.Format("{0:#,##0}", currentScore);
 
         anim.SetTrigger(animScoreUp);
+    }
+    public int GetCurrentScore()
+    {
+        return currentScore;
     }
 }

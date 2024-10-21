@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 3;
     Vector3 dir = new Vector3(); // 방향
     public Vector3 destPos = new Vector3(); // 위치
+    Vector3 originPos = new Vector3(); // 마지막 위치
 
     [Header("# 큐브 회전 #")]
     public float spinSpeed = 270;
@@ -24,6 +25,7 @@ public class PlayerController : MonoBehaviour
     public float recoilSpeed = 1.5f;
 
     bool canMove = true;
+    bool isFalling = false;
 
     [Header("# 큐브 회전 오브젝트 #")]
     public Transform fakeCube; // 페이크 큐브가 먼저 돌고 그 값을 destRot값으로 전환
@@ -31,23 +33,44 @@ public class PlayerController : MonoBehaviour
 
     TimeManager timeManager;
     CameraController cameraController;
+    StatusManager statusManager;
+    Rigidbody rigid;
     private void Start()
     {
         timeManager = FindObjectOfType<TimeManager>();
         cameraController = FindObjectOfType<CameraController>();
+        statusManager = FindObjectOfType<StatusManager>();
+        rigid = GetComponentInChildren<Rigidbody>(); // 자식 객체에 접근
+        originPos = transform.position;
+    }
+    public void Initialized()
+    {
+        transform.position = Vector3.zero;
+        destPos = Vector3.zero;
+        realCube.localPosition = Vector3.zero;
+        canMove = true;
+        canPressKey = true;
+        isFalling = false;
+        rigid.useGravity = false;
+        rigid.isKinematic = true;
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.W))
+        if (GameManager.instance.isStartGame)
         {
-            //                            상하 키 + 좌우 키 동시 입력 방지
-            if (canMove && !(Input.GetAxisRaw("Vertical") != 0 && Input.GetAxisRaw("Horizontal") != 0) 
-                                                               && canPressKey)
+            CheckFalling();
+            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.W))
             {
-                Calc();
-                if (timeManager.CheckTiming())
+                //                            상하 키 + 좌우 키 동시 입력 방지
+                if (!isFalling && canMove && !(Input.GetAxisRaw("Vertical") != 0 && 
+                                               Input.GetAxisRaw("Horizontal") != 0) && 
+                                               canPressKey)
                 {
-                    StartAction();
+                    Calc();
+                    if (timeManager.CheckTiming())
+                    {
+                        StartAction();
+                    }
                 }
             }
         }
@@ -110,5 +133,37 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
         realCube.localPosition = Vector3.zero;
+    }
+    void CheckFalling()
+    {
+        if (!isFalling && canMove)
+        {
+            if (!Physics.Raycast(transform.position, Vector3.down, 1.1f))
+            {
+                Falling();
+            }
+        }
+    }
+    void Falling()
+    {
+        isFalling = true;
+        rigid.useGravity = true;
+        rigid.isKinematic = false;
+    }
+    public void ResetFalling()
+    {
+        statusManager.DecreaseHp(1);
+        AudioManager.instance.PlayerSFX("Falling");
+
+        if (!statusManager.IsDead())
+        {
+            isFalling = false;
+            rigid.useGravity = false;
+            rigid.isKinematic = true;
+
+            // rigid가 없는 부모 객체는 낭떠러지 위에, 자식 객체(그래픽)는 추락
+            transform.position = originPos;
+            realCube.localPosition = new Vector3(0, 0, 0);
+        }
     }
 }

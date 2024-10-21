@@ -12,7 +12,7 @@ public class ComboManager : MonoBehaviour
     public Text txtCombo;
 
     int currentCombo = 0;
-
+    int maxCombo;
 
     private void Start()
     {
@@ -24,6 +24,8 @@ public class ComboManager : MonoBehaviour
     {
         currentCombo += num;
         txtCombo.text = string.Format("{0:#,##0}", currentCombo);
+
+        if (maxCombo < currentCombo) maxCombo = currentCombo; // maxCombo ÃÖ½ÅÈ­
 
         if (currentCombo > 2)
         {
@@ -43,5 +45,9 @@ public class ComboManager : MonoBehaviour
     public int GetCurrentCombo()
     {
         return currentCombo;
+    }
+    public int GetMaxCombo()
+    {
+        return maxCombo;
     }
 }

@@ -6,6 +6,8 @@ public class TimeManager : MonoBehaviour
 {
     public List<GameObject> noteList = new List<GameObject>();
 
+    int[] judgementRecord = new int[5]; // 노멀 제외 판정 저장
+
     public Transform Center = null;
     public RectTransform[] timingRect = null;
     Vector2[] timingBoxs = null;
@@ -15,6 +17,8 @@ public class TimeManager : MonoBehaviour
     ScoreManager scoreManager;
     StageManager stageManager;
     PlayerController playerController;
+    StatusManager statusManager;
+    AudioManager audioManager;
     private void Start()
     {
         comboManager = FindObjectOfType<ComboManager>();
@@ -22,6 +26,8 @@ public class TimeManager : MonoBehaviour
         scoreManager = FindObjectOfType<ScoreManager>();
         stageManager = FindObjectOfType<StageManager>();
         playerController = FindObjectOfType<PlayerController>();
+        statusManager = FindObjectOfType<StatusManager>();
+        audioManager = AudioManager.instance;
         // 판정 설정
         timingBoxs = new Vector2[timingRect.Length];
 
@@ -57,18 +63,23 @@ public class TimeManager : MonoBehaviour
                     {
                         scoreManager.IncreaseScore(j); // 점수 증가
                         stageManager.ShowNextPlate(); // 판정 시 다음 발판 활성화
-                        effectManager.AnimJudgementHit(j);
+                        effectManager.AnimJudgementHit(j); // 판정 연출
+                        judgementRecord[j]++; // 판정 기록
+                        statusManager.CheckShield(); // 실드 체크
                     }
                     else
                     {
                         effectManager.AnimJudgementHit(5);
                     }
+                    audioManager.PlayerSFX("Clap");
                     return true;
                 }
             }
         }
+        // ################### Miss 감지 ###################
         comboManager.ResetCombo(); // 콤보 초기화
         effectManager.AnimJudgementHit(timingBoxs.Length); // Miss 애니메이션
+        MissRecord(); // Miss 기록
         return false;
     }
     bool CheckCanNextPlate()
@@ -89,5 +100,22 @@ public class TimeManager : MonoBehaviour
             }
         }
         return false;
+    }
+    public int[] GetJudementRecord()
+    {
+        return judgementRecord;
+    }
+    public void MissRecord()
+    {
+        judgementRecord[4]++; // Miss 기록
+        statusManager.ResetShieldCombo();
+    }
+    public void Initialized()
+    {
+        judgementRecord[0] = 0;
+        judgementRecord[1] = 0;
+        judgementRecord[2] = 0;
+        judgementRecord[3] = 0;
+        judgementRecord[4] = 0;
     }
 }

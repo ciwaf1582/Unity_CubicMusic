@@ -5,6 +5,7 @@ using UnityEngine;
 public class StageManager : MonoBehaviour
 {
     public GameObject stage;
+    GameObject currentStage;
     Transform[] stagePlates;
 
     public float offsetY;
@@ -12,9 +13,13 @@ public class StageManager : MonoBehaviour
 
     int stepCount = 0;
     int totalPlateCount;
-    private void Awake()
+    public void SettingStage()
     {
-        stagePlates = stage.GetComponent<Stage>().plates;
+        stepCount = 0;
+
+        currentStage = Instantiate(stage, Vector3.zero, Quaternion.identity);
+
+        stagePlates = currentStage.GetComponent<Stage>().plates;
         Debug.Log(stagePlates.Length);
         totalPlateCount = stagePlates.Length;
 
@@ -23,6 +28,13 @@ public class StageManager : MonoBehaviour
             stagePlates[i].position = new Vector3(stagePlates[i].position.x,
                                                   stagePlates[i].position.y - offsetY,
                                                   stagePlates[i].position.z);
+        }
+    }
+    public void RemoveStage()
+    {
+        if (currentStage != null)
+        {
+            Destroy(currentStage);
         }
     }
     public void ShowNextPlate()
@@ -51,7 +63,5 @@ public class StageManager : MonoBehaviour
             yield return null;
         }
         stagePlates[p_num].position = destPos;
-        Debug.Log(stagePlates[p_num].position);
-
     }
 }

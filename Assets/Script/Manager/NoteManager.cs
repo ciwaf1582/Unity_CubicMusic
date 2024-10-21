@@ -7,8 +7,6 @@ public class NoteManager : MonoBehaviour
     public int bpm = 0;
     double currentTime = 0d;
 
-    bool noteActive = true;
-
     public Transform noteSpawn;
     //public GameObject prefab;
 
@@ -23,7 +21,7 @@ public class NoteManager : MonoBehaviour
     }
     private void Update()
     {
-        if (noteActive)
+        if (GameManager.instance.isStartGame)
         {
             currentTime += Time.deltaTime;
 
@@ -47,8 +45,9 @@ public class NoteManager : MonoBehaviour
         {
             if (collision.GetComponent<Note>().GetNoteFlag()) // 이미지가 활성화 된 노트라면
             {
+                timeManager.MissRecord(); // Miss 기록
                 comboManager.ResetCombo(); // 콤보 초기화
-                effectManager.AnimJudgementHit(4); // 미스
+                effectManager.AnimJudgementHit(4); // Miss
             }
             timeManager.noteList.Remove(collision.gameObject);
 
@@ -60,11 +59,13 @@ public class NoteManager : MonoBehaviour
     }
     public void RemoveNote()
     {
-        noteActive = false; 
+        GameManager.instance.isStartGame = false;
+
         for (int i = 0; i < timeManager.noteList.Count; i++)
         {
             timeManager.noteList[i].gameObject.SetActive(false);
             ObjectPool.instance.noteQueue.Enqueue(timeManager.noteList[i]);
         }
+        timeManager.noteList.Clear();
     }
 }
