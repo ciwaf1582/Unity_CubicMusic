@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class StageManager : MonoBehaviour
 {
-    public GameObject stage;
+    public GameObject[] stageAray;
     GameObject currentStage;
     Transform[] stagePlates;
 
@@ -13,11 +13,11 @@ public class StageManager : MonoBehaviour
 
     int stepCount = 0;
     int totalPlateCount;
-    public void SettingStage()
+    public void SettingStage(int songNum)
     {
         stepCount = 0;
 
-        currentStage = Instantiate(stage, Vector3.zero, Quaternion.identity);
+        currentStage = Instantiate(stageAray[songNum], Vector3.zero, Quaternion.identity);
 
         stagePlates = currentStage.GetComponent<Stage>().plates;
         Debug.Log(stagePlates.Length);

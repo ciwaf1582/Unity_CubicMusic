@@ -38,7 +38,6 @@ public class AudioManager : MonoBehaviour
     public void StopBGM()
     {
         bgmPlayer.Stop();
-        Debug.Log("¿¡·¯");
     }
     public void PlayerSFX(string sfxName)
     {

@@ -13,16 +13,19 @@ public class Result : MonoBehaviour
     public Text txtMaxCombo;
     public Text txtCoin;
 
+    int currentSong; public void SetCurrentSong(int songNum) {  currentSong = songNum; }
+
     ScoreManager scoreManager;
     ComboManager comboManager;
     TimeManager timeManager;
+    DatabaseManager databaseManager;
 
     private void Awake()
     {
         scoreManager = FindObjectOfType<ScoreManager>();
         comboManager = FindObjectOfType<ComboManager>();
         timeManager = FindObjectOfType<TimeManager>();
-        
+        databaseManager = FindObjectOfType<DatabaseManager>();
     }
     public void ShowResult()
     {
@@ -53,6 +56,13 @@ public class Result : MonoBehaviour
         txtScore.text = string.Format("{0:#,##0}", currentScore);
         txtMaxCombo.text = string.Format("{0:#,##0}", maxCombo);
         txtCoin.text = string.Format("{0:#,##0}", coin);
+
+        //if (currentScore > databaseManager.score[currentSong])
+        //{
+        //    databaseManager.score[currentSong] = currentScore;
+        //    databaseManager.SaveScore();
+        //}
+            
     }
     public void BtnMainMenu()
     {

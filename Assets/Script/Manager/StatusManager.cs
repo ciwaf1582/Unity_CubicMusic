@@ -27,6 +27,7 @@ public class StatusManager : MonoBehaviour
 
     Result result;
     NoteManager noteManager;
+
     public MeshRenderer mesh;
 
     private void Awake()
